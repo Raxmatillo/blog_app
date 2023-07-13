@@ -2,6 +2,16 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from .. import models, schemas
 
+from slugify import slugify
+
+
+
+
+def create_slug(slug)-> str:
+    if slug is not None:
+        return slugify(slug)
+
+
 
 
 def get_all(db: Session):
@@ -10,7 +20,8 @@ def get_all(db: Session):
 
 
 def create(request, db: Session):
-    newBlog = models.Blog(title=request.title, body=request.body, user_id=1)
+    slugword = create_slug(request.title.lower())
+    newBlog = models.Blog(**request.dict(), slug=slugword)
     db.add(newBlog)
     db.commit()
     db.refresh(newBlog)
@@ -25,7 +36,7 @@ def destroy(id: int, db: Session):
                             detail=f"Blog with the {id} is not available")
     
     blog.delete(synchronize_session=False)
-    db.commit() 
+    db.commit()
     return 'done'
 
 def update(id: int, request: schemas.Blog, db: Session):
@@ -35,15 +46,15 @@ def update(id: int, request: schemas.Blog, db: Session):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"Blog with the {id} is not available")
     
-    blog.update(dict(request))
+    blog.update(*request.dict())
     db.commit()
     return 'updated'
 
 
-def show(id: int, db: Session):
-    blog = db.query(models.Blog).filter(models.Blog.id == id).first()
+def show(slug: str, db: Session):
+    blog = db.query(models.Blog).filter(models.Blog.slug == slug).first()
 
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-                            detail=f"Blog with the {id} is not available")
+                            detail=f"Blog with the {slug} is not available")
     return blog

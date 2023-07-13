@@ -1,46 +1,73 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
+from slugify import slugify
 
 
 
 
 class BlogBase(BaseModel):
     title: str
-    body: str
+    summary: Optional[str] = None
+    body: Optional[str] = ...
+    photo: Optional[str] = ...
+    blog_subcategory: str
+    owner_id: Optional[int] = None
+    category_id: Optional[int] = None
 
 
-class Blog(BaseModel):
-    title: str
-    body: str
+class BlogCreate(BlogBase):
+    slug: Optional[str] = Field(..., description="URL-ga mos keluvchi slug")
+    owner_id: int
+    category_id: int
+    
 
+ 
+class Blog(BlogBase):
     class Config():
         orm_mode = True
 
 
 
-class User(BaseModel):
+
+class CategoryBase(BaseModel):
+    name: str
+
+
+class CategoryCreate(CategoryBase):
+    pass
+
+class Category(CategoryBase):
+    blogs: List[Blog] = []
+
+    class Config():
+        orm_mode = True
+
+
+class UserBase(BaseModel):
+    full_name: str
     username: str
+    email: EmailStr
+    
+
+class UserCreate(UserBase):
     password: str
-    email: EmailStr
-    full_name: str or None = None
 
-
-class ShowUser(BaseModel):
-    username: str
-    email: EmailStr
-    full_name: str or None = None
+class User(UserBase):
+    blogs: List[Blog] = []
 
     class Config():
         orm_mode = True
+
+
 
 
 
 class ShowBlog(BaseModel):
     title: str
+    summary: str
     body: str
-    creator: ShowUser
 
     class Config():
         orm_mode=True

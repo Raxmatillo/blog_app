@@ -14,18 +14,19 @@ router = APIRouter(
     prefix="/user",
     tags=["Users"]
 )
+
+
 get_db = database.get_db
 
 
 
-
-@router.get('/', response_model=List[schemas.ShowUser], status_code=status.HTTP_200_OK)
+@router.get('/', response_model=List[schemas.User], status_code=status.HTTP_200_OK)
 def get_all_user(db: Session = Depends(get_db)):
     return user.get_all_user(db)
 
 
-@router.post('/', response_model=schemas.ShowUser)
-def create_user(request: schemas.User, db: Session = Depends(get_db)):
+@router.post('/', response_model=schemas.User)
+def create_user(request: schemas.UserCreate, db: Session = Depends(get_db)):
     return user.create_user(request, db)
 
 
@@ -34,13 +35,11 @@ def delete_user(id: int, db: Session = Depends(get_db)):
     return user.delete_user(id, db)
 
 
-
 @router.put('/{id}', status_code=status.HTTP_202_ACCEPTED)
-def update_user(id: int, request: schemas.User, db: Session = Depends(get_db)):
+def update_user(id: int, request: schemas.UserBase, db: Session = Depends(get_db)):
     return user.update_user(id, request, db)
 
 
-
-@router.get('/{id}', response_model=schemas.ShowUser)
+@router.get('/{id}', response_model=schemas.User)
 def get_user(id: int, db: Session = Depends(get_db)):
     return user.get_user(id, db)
