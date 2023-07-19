@@ -11,7 +11,6 @@ class BlogBase(BaseModel):
     title: str
     summary: Optional[str] = None
     body: Optional[str] = ...
-    photo: Optional[str] = ...
     blog_subcategory: str
     owner_id: Optional[int] = None
     category_id: Optional[int] = None
@@ -62,12 +61,18 @@ class User(UserBase):
 
 
 
-
+from datetime import datetime
 
 class ShowBlog(BaseModel):
     title: str
     summary: str
     body: str
+    photo: str
+    slug: str
+    views: int
+    category_id: int
+    owner_id: int
+    created_at: datetime
 
     class Config():
         orm_mode=True
